@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic AI - Neural Vision Architecture & Specifications</title>
+    <meta name="description" content="Technical details and specifications of Traffic AI deep learning computer vision model.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header Navbar -->
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            <div class="logo-icon">📷</div>
+            Traffic<span>AI</span>
+        </a>
+
+        <button class="menu-toggle" aria-label="Toggle Navigation">☰</button>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="analysis.html">Analyzer</a>
+            <a href="history.html">History</a>
+            <a href="about.html" class="active">About</a>
+        </nav>
+
+        <div class="nav-actions">
+            <div class="credits">
+                <span>Daily Credits</span>
+                <strong id="creditCount">50</strong>
+            </div>
+        </div>
+    </header>
+
+
+    <main>
+
+        <section class="section-padding">
+            <div class="section-heading">
+                <div>
+                    <div class="tag">DEEP LEARNING PIPELINE</div>
+                    <h2>Neural Network Architecture</h2>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot"></span> Model Version 3.4
+                </div>
+            </div>
+
+
+            <!-- Architecture Pipeline Grid -->
+            <div class="grid-4" style="margin-bottom: 40px;">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(56, 189, 248, 0.12); color: var(--cyan);">01</div>
+                    <h3>Frame Preprocessing</h3>
+                    <p>Image resize to 640x640 tensor format, histogram normalization, and RGB channel alignment.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(129, 140, 248, 0.12); color: var(--accent);">02</div>
+                    <h3>Feature Extraction</h3>
+                    <p>Backbone Convolutional Neural Network (CNN) extracts high-level spatial feature maps.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(192, 132, 252, 0.12); color: var(--purple);">03</div>
+                    <h3>Bounding Box NMS</h3>
+                    <p>Non-Maximum Suppression filters overlapping bounding boxes with threshold confidence &gt; 0.85.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(52, 211, 153, 0.12); color: var(--emerald);">04</div>
+                    <h3>Density Calculation</h3>
+                    <p>Aggregates counts across classes (Cars, Bikes, Pedestrians) to compute traffic index ratio.</p>
+                </div>
+            </div>
+
+
+            <!-- Technical Benchmark Table -->
+            <div class="section-heading" style="margin-top: 50px; margin-bottom: 25px;">
+                <div>
+                    <div class="tag">MODEL BENCHMARKS</div>
+                    <h2>Computer Vision System Specifications</h2>
+                </div>
+            </div>
+
+            <div class="history-table-wrapper">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Specification</th>
+                            <th>Benchmark Value</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600;">Model Framework</td>
+                            <td>Custom Vision Transformer / YOLO backbone</td>
+                            <td><span class="pill-level pill-low">Optimized</span></td>
+                            <td>Compiled for TensorRT acceleration</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Inference Speed</td>
+                            <td>FP16 Precision Execution</td>
+                            <td style="color: var(--accent); font-weight: 700;">38 ms / frame</td>
+                            <td>Real-time 30 FPS ready</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Detection Accuracy</td>
+                            <td>mAP@0.5 IoU Threshold</td>
+                            <td style="color: var(--cyan); font-weight: 700;">99.4%</td>
+                            <td>Validated on COCO & Traffic dataset</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Classes Supported</td>
+                            <td>Cars, Motorcycles, Bicycles, Buses, Pedestrians</td>
+                            <td><span class="pill-level pill-low">Multi-Class</span></td>
+                            <td>Automatic confidence rating per box</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Input Resolution</td>
+                            <td>Max 4K (3840 x 2160 pixels)</td>
+                            <td>10 MB File Limit</td>
+                            <td>Downsampled dynamically for speed</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                Traffic<span>AI</span> Vision
+            </div>
+            <div class="footer-text">
+                TrafficAI © 2026 • AI-Powered Visual Traffic Intelligence
+            </div>
+        </div>
+    </footer>
+
+    <script src="common.js"></script>
+
+</body>
+
+</html>

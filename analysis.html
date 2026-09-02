@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic AI - AI Traffic Analyzer</title>
+    <meta name="description" content="Perform computer vision traffic analysis and vehicle detection on street photos.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header Navbar -->
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            <div class="logo-icon">📷</div>
+            Traffic<span>AI</span>
+        </a>
+
+        <button class="menu-toggle" aria-label="Toggle Navigation">☰</button>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="analysis.html" class="active">Analyzer</a>
+            <a href="history.html">History</a>
+            <a href="about.html">About</a>
+        </nav>
+
+        <div class="nav-actions">
+            <div class="credits">
+                <span>Daily Credits</span>
+                <strong id="creditCount">50</strong>
+            </div>
+        </div>
+    </header>
+
+
+    <main>
+
+        <section class="section-padding">
+            <div class="section-heading">
+                <div>
+                    <div class="tag">AI TRAFFIC VISION</div>
+                    <h2>Traffic Analyzer & Vision Suite</h2>
+                </div>
+
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span id="analysisStatus">Ready for input</span>
+                </div>
+            </div>
+
+
+            <div class="analyzer-grid">
+
+                <!-- Left Column: Upload & Canvas Area -->
+                <div class="upload-card">
+
+                    <input type="file" id="imageInput" accept="image/*" hidden>
+
+                    <!-- Dropzone -->
+                    <label for="imageInput" class="upload-area" id="uploadArea">
+                        <div class="upload-icon-circle">↑</div>
+                        <h3>Upload Traffic Image</h3>
+                        <p>Click to select an image or drag and drop it here</p>
+                        <small>Supports JPG, PNG, WEBP • Max size 10 MB</small>
+                    </label>
+
+                    <!-- Interactive Vision Canvas -->
+                    <div class="canvas-wrapper" id="canvasWrapper">
+                        <canvas id="visionCanvas"></canvas>
+                        <div class="canvas-actions">
+                            <button id="removeImage" class="remove-btn">✕ Clear Image</button>
+                            <small style="color: var(--muted); font-size: 12px;">Bounding boxes rendered via AI</small>
+                        </div>
+                    </div>
+
+                    <!-- Presets Selection -->
+                    <div class="presets-container">
+                        <span>OR TRY A SAMPLE SCENE:</span>
+                        <div class="preset-thumbs">
+                            <button class="preset-btn" dataset-preset="sample1">
+                                <img src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=400&q=80" alt="Highway">
+                                <small>Highway</small>
+                            </button>
+                            <button class="preset-btn" dataset-preset="sample2">
+                                <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" alt="Intersection">
+                                <small>Intersection</small>
+                            </button>
+                            <button class="preset-btn" dataset-preset="sample3">
+                                <img src="https://images.unsplash.com/photo-1494522855154-9297ac14b55f?auto=format&fit=crop&w=400&q=80" alt="Evening">
+                                <small>Evening</small>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button id="analyzeBtn" class="analyze-btn" style="width: 100%; margin-top: 25px;" disabled>
+                        <span>⚡ Execute AI Detection</span>
+                    </button>
+                </div>
+
+
+                <!-- Right Column: Results Stats Grid -->
+                <div class="results-card">
+                    <h3 style="font-size: 20px; margin-bottom: 20px;">Detection Metrics Breakdown</h3>
+
+                    <div class="grid-4" style="grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
+                        <div class="stat-box">
+                            <div class="stat-box-icon">🚗</div>
+                            <div>
+                                <label>Cars Detected</label>
+                                <strong id="carCount">--</strong>
+                            </div>
+                        </div>
+
+                        <div class="stat-box">
+                            <div class="stat-box-icon">🏍️</div>
+                            <div>
+                                <label>Bikes / Cycles</label>
+                                <strong id="bikeCount">--</strong>
+                            </div>
+                        </div>
+
+                        <div class="stat-box">
+                            <div class="stat-box-icon">🧍</div>
+                            <div>
+                                <label>Pedestrians</label>
+                                <strong id="personCount">--</strong>
+                            </div>
+                        </div>
+
+                        <div class="stat-box highlight">
+                            <div class="stat-box-icon">Σ</div>
+                            <div>
+                                <label>Total Objects</label>
+                                <strong id="totalCount">--</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Congestion Index Meter -->
+                    <div class="traffic-level-card">
+                        <div class="traffic-meter-header">
+                            <span>Traffic Congestion Level</span>
+                            <h4 id="trafficLevel">--</h4>
+                        </div>
+                        <div class="meter-track">
+                            <div class="meter-fill" id="trafficProgress"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 25px; background: rgba(255, 255, 255, 0.02); padding: 15px; border-radius: 10px; border: 1px solid var(--border);">
+                        <p style="font-size: 13px; color: var(--muted);">
+                            💡 <strong>Tip:</strong> Each analysis consumes 1 daily credit. Results automatically save to your <a href="history.html" style="color: var(--accent);">History Archive</a>.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                Traffic<span>AI</span> Vision
+            </div>
+            <div class="footer-text">
+                TrafficAI © 2026 • AI-Powered Visual Traffic Intelligence
+            </div>
+        </div>
+    </footer>
+
+    <script src="common.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>

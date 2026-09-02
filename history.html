@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic AI - Analysis History Archive</title>
+    <meta name="description" content="View past traffic visual analysis logs and vehicle counting history records.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header Navbar -->
+    <header class="navbar">
+        <a href="index.html" class="logo">
+            <div class="logo-icon">📷</div>
+            Traffic<span>AI</span>
+        </a>
+
+        <button class="menu-toggle" aria-label="Toggle Navigation">☰</button>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="analysis.html">Analyzer</a>
+            <a href="history.html" class="active">History</a>
+            <a href="about.html">About</a>
+        </nav>
+
+        <div class="nav-actions">
+            <div class="credits">
+                <span>Daily Credits</span>
+                <strong id="creditCount">50</strong>
+            </div>
+        </div>
+    </header>
+
+
+    <main>
+
+        <section class="section-padding">
+            <div class="section-heading">
+                <div>
+                    <div class="tag">DATA LOGS</div>
+                    <h2>Recent Analysis History</h2>
+                </div>
+
+                <button id="clearHistoryBtn" class="secondary-btn" style="padding: 8px 18px; font-size: 13px;">
+                    🗑️ Clear History Log
+                </button>
+            </div>
+
+            <!-- Toolbar & Filter Search -->
+            <div class="table-toolbar">
+                <input type="text" id="historySearch" class="search-input" placeholder="🔍 Search history by level, time...">
+                <div style="font-size: 13px; color: var(--muted); align-self: center;">
+                    Saved in local storage
+                </div>
+            </div>
+
+            <!-- Table Wrapper -->
+            <div class="history-table-wrapper">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Cars</th>
+                            <th>Bikes</th>
+                            <th>Pedestrians</th>
+                            <th>Total Objects</th>
+                            <th>Congestion Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- Rendered dynamically -->
+                    </tbody>
+                </table>
+
+                <div id="emptyHistoryState" class="empty-state" style="display: none;">
+                    <div class="empty-icon">📂</div>
+                    <h3>No Analysis Records Found</h3>
+                    <p style="font-size: 13px; margin-top: 5px;">Perform scans on the <a href="analysis.html" style="color: var(--accent);">Analyzer page</a> to populate log records.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                Traffic<span>AI</span> Vision
+            </div>
+            <div class="footer-text">
+                TrafficAI © 2026 • AI-Powered Visual Traffic Intelligence
+            </div>
+        </div>
+    </footer>
+
+    <script src="common.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tableBody = document.getElementById("historyTableBody");
+            const emptyState = document.getElementById("emptyHistoryState");
+            const searchInput = document.getElementById("historySearch");
+            const clearBtn = document.getElementById("clearHistoryBtn");
+
+            function renderHistory(filterText = "") {
+                const history = getStoredHistory();
+                tableBody.innerHTML = "";
+
+                const filtered = history.filter(item => {
+                    const str = `${item.time} ${item.date || ''} ${item.level} ${item.total}`.toLowerCase();
+                    return str.includes(filterText.toLowerCase());
+                });
+
+                if (filtered.length === 0) {
+                    emptyState.style.display = "block";
+                    return;
+                }
+
+                emptyState.style.display = "none";
+
+                filtered.forEach(item => {
+                    const tr = document.createElement("tr");
+                    let pillClass = "pill-low";
+                    if (item.level === "MEDIUM") pillClass = "pill-medium";
+                    if (item.level === "HIGH") pillClass = "pill-high";
+
+                    tr.innerHTML = `
+                        <td style="font-weight: 500;">${item.time} <small style="color: var(--muted); opacity: 0.7;">(${item.date || 'Today'})</small></td>
+                        <td>🚗 ${item.cars}</td>
+                        <td>🏍️ ${item.bikes}</td>
+                        <td>🧍 ${item.people}</td>
+                        <td style="font-weight: 700;">${item.total}</td>
+                        <td><span class="pill-level ${pillClass}">${item.level}</span></td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener("input", (e) => renderHistory(e.target.value));
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener("click", () => {
+                    if (confirm("Are you sure you want to clear your local analysis history?")) {
+                        clearStoredHistory();
+                        renderHistory();
+                        showToast("History log cleared.", "info");
+                    }
+                });
+            }
+
+            renderHistory();
+        });
+    </script>
+
+</body>
+
+</html>
