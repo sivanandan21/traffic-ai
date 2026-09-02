@@ -1,0 +1,18 @@
+# Virtual Environments
+venv/
+backend/venv/
+
+# Uploads & Temp Media
+uploads/
+backend/uploads/
+
+# Model weights
+*.pt
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment & Keys
+.env
+*.pem
