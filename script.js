@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
 
     const API_URL =
-        "http://127.0.0.1:8000";
+        "/api";
 
 
     // ==========================================
@@ -585,7 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const response =
                 await fetch(
-                    `${API_URL}/api/analyze`,
+                    `${API_URL}/analyze`,
                     {
                         method: "POST",
                         body: formData
