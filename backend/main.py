@@ -1,274 +1,508 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-
 from pathlib import Path
+import os
+import re
 import shutil
 
+import boto3
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from botocore.exceptions import BotoCoreError, ClientError
 from ultralytics import YOLO
 
 
-# ==========================================
-# CREATE APP
-# ==========================================
+# ============================================================
+# APPLICATION
+# ============================================================
 
-app = FastAPI()
+app = FastAPI(
+    title="Traffic AI API",
+    version="1.0.0",
+    description="Traffic image analysis using FastAPI, YOLO and Amazon S3.",
+)
 
 
-# ==========================================
+# ============================================================
 # CORS
-# ==========================================
+# ============================================================
+#
+# The frontend and API are now served through the same Nginx
+# server, so normal browser requests are same-origin.
+#
+# These local origins are kept for development/testing.
+# ============================================================
 
 app.add_middleware(
     CORSMiddleware,
-
-    # Allow all origins in development so any port / file:// works
-    allow_origins=["*"],
-
+    allow_origins=[
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+    ],
     allow_credentials=False,
-
-    allow_methods=["*"],
-
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
 
-# ==========================================
-# UPLOAD DIRECTORY
-# ==========================================
+# ============================================================
+# DIRECTORIES
+# ============================================================
 
-UPLOAD_DIR = Path("uploads")
+BASE_DIR = Path(__file__).resolve().parent
+
+UPLOAD_DIR = BASE_DIR / "uploads"
 
 UPLOAD_DIR.mkdir(
-    exist_ok=True
+    parents=True,
+    exist_ok=True,
 )
 
 
-# ==========================================
-# LOAD YOLO
-# ==========================================
+# ============================================================
+# AWS S3 CONFIGURATION
+# ============================================================
 
-# Path to YOLO model — resolved relative to this file so it works
-# regardless of which directory you run uvicorn/python from.
-BASE_DIR = Path(__file__).parent.parent
-MODEL_PATH = BASE_DIR / "yolo11n.pt"
+S3_BUCKET = "traffic-ai-buck"
 
-if MODEL_PATH.exists():
-    print(f"Loading YOLO model from: {MODEL_PATH}")
-    model = YOLO(str(MODEL_PATH))
-else:
-    print(f"Local model not found at {MODEL_PATH}, auto-downloading 'yolo11n.pt'...")
-    model = YOLO("yolo11n.pt")
+S3_REGION = "ap-south-1"
+
+S3_PREFIX = "uploads"
+
+
+# boto3 automatically uses the EC2 IAM role attached to the
+# instance. No AWS access key or secret key is stored here.
+
+s3 = boto3.client(
+    "s3",
+    region_name=S3_REGION,
+)
+
+
+# ============================================================
+# YOLO MODEL
+# ============================================================
+
+print("Loading YOLO model...")
+
+model = YOLO(
+    "yolo11n.pt"
+)
 
 print("YOLO model loaded successfully!")
 
 
+# ============================================================
+# ALLOWED IMAGE TYPES
+# ============================================================
 
-# ==========================================
+ALLOWED_CONTENT_TYPES = {
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/bmp",
+}
+
+
+# ============================================================
+# MAXIMUM IMAGE SIZE
+# ============================================================
+
+MAX_FILE_SIZE = 10 * 1024 * 1024
+
+
+# ============================================================
+# SAFE FILENAME FUNCTION
+# ============================================================
+
+def safe_filename(filename: str) -> str:
+    """
+    Convert a user-provided filename into a safer local/S3 filename.
+    """
+
+    filename = Path(
+        filename
+    ).name
+
+    filename = re.sub(
+        r"[^A-Za-z0-9._-]",
+        "_",
+        filename,
+    )
+
+    if not filename:
+        filename = "image"
+
+    return filename
+
+
+# ============================================================
 # HOME
-# ==========================================
+# ============================================================
 
 @app.get("/")
 def home():
-
     return {
         "message": "Traffic AI backend is running"
     }
 
 
-# ==========================================
-# HEALTH
-# ==========================================
+# ============================================================
+# HEALTH CHECK
+# ============================================================
 
 @app.get("/api/health")
 def health():
-
     return {
-        "status": "ok"
+        "status": "ok",
+        "service": "traffic-ai",
+        "yolo": "ready",
+        "s3": S3_BUCKET,
     }
 
 
-# ==========================================
+# ============================================================
 # ANALYZE IMAGE
-# ==========================================
+# ============================================================
 
 @app.post("/api/analyze")
 async def analyze(
     file: UploadFile = File(...)
 ):
 
-    # --------------------------------------
-    # Save uploaded image
-    # --------------------------------------
+    # --------------------------------------------------------
+    # Validate filename
+    # --------------------------------------------------------
 
-    file_path = UPLOAD_DIR / file.filename
-
-    with file_path.open("wb") as buffer:
-
-        shutil.copyfileobj(
-            file.file,
-            buffer
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Filename is missing.",
         )
 
 
-    # --------------------------------------
-    # Run YOLO
-    # --------------------------------------
+    # --------------------------------------------------------
+    # Validate content type
+    # --------------------------------------------------------
 
-    results = model.predict(
-        source=str(file_path),
-        conf=0.25
+    if file.content_type not in ALLOWED_CONTENT_TYPES:
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Unsupported image type. "
+                "Use JPEG, PNG, WEBP or BMP."
+            ),
+        )
+
+
+    # --------------------------------------------------------
+    # Create safe filename
+    # --------------------------------------------------------
+
+    filename = safe_filename(
+        file.filename
     )
 
 
-    # --------------------------------------
-    # Counters
-    # --------------------------------------
+    # --------------------------------------------------------
+    # Create local temporary file
+    # --------------------------------------------------------
 
-    cars = 0
-    bikes = 0
-    people = 0
-
-    boxes = []
+    file_path = UPLOAD_DIR / filename
 
 
-    # --------------------------------------
-    # Process detections
-    # --------------------------------------
+    try:
 
-    for result in results:
+        # ====================================================
+        # SAVE UPLOADED FILE LOCALLY
+        # ====================================================
 
-        for box in result.boxes:
+        total_bytes = 0
 
-            # Class ID
+        with file_path.open("wb") as buffer:
 
-            class_id = int(
-                box.cls[0]
+            while True:
+
+                chunk = await file.read(
+                    1024 * 1024
+                )
+
+                if not chunk:
+                    break
+
+                total_bytes += len(chunk)
+
+                if total_bytes > MAX_FILE_SIZE:
+
+                    raise HTTPException(
+                        status_code=413,
+                        detail=(
+                            "Image is too large. "
+                            "Maximum size is 10MB."
+                        ),
+                    )
+
+                buffer.write(
+                    chunk
+                )
+
+
+        # ====================================================
+        # UPLOAD IMAGE TO S3
+        # ====================================================
+
+        s3_key = (
+            f"{S3_PREFIX}/{filename}"
+        )
+
+
+        try:
+
+            s3.upload_file(
+                str(file_path),
+                S3_BUCKET,
+                s3_key,
+                ExtraArgs={
+                    "ContentType":
+                        file.content_type,
+                },
+            )
+
+        except (
+            ClientError,
+            BotoCoreError,
+        ) as exc:
+
+            print(
+                f"S3 upload failed: {exc}"
+            )
+
+            raise HTTPException(
+                status_code=502,
+                detail="Could not upload image to S3.",
             )
 
 
-            # Class name
+        # ====================================================
+        # RUN YOLO
+        # ====================================================
 
-            class_name = model.names[
-                class_id
-            ]
+        try:
 
+            results = model.predict(
+                source=str(file_path),
+                conf=0.25,
+                verbose=False,
+            )
 
-            # Confidence
+        except Exception as exc:
 
-            confidence = float(
-                box.conf[0]
+            print(
+                f"YOLO inference failed: {exc}"
+            )
+
+            raise HTTPException(
+                status_code=500,
+                detail="YOLO analysis failed.",
             )
 
 
-            # Bounding box coordinates
+        # ====================================================
+        # INITIALIZE COUNTERS
+        # ====================================================
 
-            x1, y1, x2, y2 = map(
-                int,
-                box.xyxy[0].tolist()
-            )
+        cars = 0
 
+        bikes = 0
 
-            width = x2 - x1
+        people = 0
 
-            height = y2 - y1
-
-
-            # ----------------------------------
-            # Count supported traffic objects
-            # ----------------------------------
-
-            if class_name == "car":
-
-                cars += 1
-
-                display_class = "car"
+        boxes = []
 
 
-            elif class_name in [
-                "motorcycle",
-                "bicycle"
-            ]:
+        # ====================================================
+        # PROCESS YOLO RESULTS
+        # ====================================================
 
-                bikes += 1
+        for result in results:
 
-                display_class = class_name
-
-
-            elif class_name == "person":
-
-                people += 1
-
-                display_class = "person"
-
-
-            else:
-
-                # Ignore objects that aren't
-                # relevant to our dashboard.
-
+            if result.boxes is None:
                 continue
 
 
-            # ----------------------------------
-            # Store bounding box
-            # ----------------------------------
+            for detection in result.boxes:
 
-            boxes.append({
+                # ------------------------------------------------
+                # CLASS ID
+                # ------------------------------------------------
 
-                "x": x1,
-
-                "y": y1,
-
-                "width": width,
-
-                "height": height,
-
-                "class": display_class,
-
-                "confidence": round(
-                    confidence,
-                    3
+                class_id = int(
+                    detection.cls[0]
                 )
 
-            })
+
+                # ------------------------------------------------
+                # CLASS NAME
+                # ------------------------------------------------
+
+                class_name = model.names.get(
+                    class_id,
+                    str(class_id),
+                )
 
 
-    # --------------------------------------
-    # Total
-    # --------------------------------------
+                # ------------------------------------------------
+                # CONFIDENCE
+                # ------------------------------------------------
 
-    total = (
-        cars +
-        bikes +
-        people
-    )
+                confidence = float(
+                    detection.conf[0]
+                )
 
 
-    # --------------------------------------
-    # Response
-    # --------------------------------------
+                # ------------------------------------------------
+                # BOUNDING BOX
+                # ------------------------------------------------
 
-    return {
+                x1, y1, x2, y2 = map(
+                    int,
+                    detection.xyxy[0].tolist(),
+                )
 
-        "message":
-            "Image analyzed successfully",
 
-        "filename":
-            file.filename,
+                width = max(
+                    0,
+                    x2 - x1,
+                )
 
-        "cars":
-            cars,
+                height = max(
+                    0,
+                    y2 - y1,
+                )
 
-        "bikes":
-            bikes,
 
-        "people":
-            people,
+                # Ignore invalid boxes
 
-        "total":
-            total,
+                if width <= 0 or height <= 0:
+                    continue
 
-        "boxes":
-            boxes
 
-    }
+                # ------------------------------------------------
+                # SUPPORTED TRAFFIC CLASSES
+                # ------------------------------------------------
+
+                if class_name == "car":
+
+                    cars += 1
+
+                    display_class = "car"
+
+
+                elif class_name in {
+                    "bicycle",
+                    "motorcycle",
+                }:
+
+                    bikes += 1
+
+                    display_class = class_name
+
+
+                elif class_name == "person":
+
+                    people += 1
+
+                    display_class = "person"
+
+
+                else:
+
+                    # Ignore other YOLO classes
+                    # for our traffic dashboard.
+
+                    continue
+
+
+                # ------------------------------------------------
+                # ADD BOX
+                # ------------------------------------------------
+
+                boxes.append(
+                    {
+                        "x": x1,
+                        "y": y1,
+                        "width": width,
+                        "height": height,
+                        "class": display_class,
+                        "confidence": round(
+                            confidence,
+                            3,
+                        ),
+                    }
+                )
+
+
+        # ====================================================
+        # TOTAL OBJECTS
+        # ====================================================
+
+        total = (
+            cars
+            + bikes
+            + people
+        )
+
+
+        # ====================================================
+        # RESPONSE
+        # ====================================================
+
+        return {
+
+            "message":
+                "Image analyzed successfully",
+
+            "filename":
+                filename,
+
+            "s3_bucket":
+                S3_BUCKET,
+
+            "s3_key":
+                s3_key,
+
+            "cars":
+                cars,
+
+            "bikes":
+                bikes,
+
+            "people":
+                people,
+
+            "total":
+                total,
+
+            "boxes":
+                boxes,
+        }
+
+
+    finally:
+
+        # ====================================================
+        # DELETE LOCAL TEMPORARY FILE
+        # ====================================================
+
+        try:
+
+            if file_path.exists():
+
+                os.remove(
+                    file_path
+                )
+
+        except OSError as exc:
+
+            print(
+                f"Temporary file cleanup failed: {exc}"
+            )
