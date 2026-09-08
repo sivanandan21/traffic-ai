@@ -49,22 +49,10 @@ Engineered for city planners, surveillance hubs, and autonomous traffic command 
 ## 📸 02 // MISSION INTERFACE PREVIEW (視覚スクリーンショット)
 
 <div align="center">
-  <table>
-    <tr>
-      <td width="50%" align="center">
-        <b>[ ANALYSIS BAY // 画像投入ステーション ]</b><br/><br/>
-        <img src="assets/preview-analyzer.png" alt="Analyzer Bay Preview" width="100%" style="border: 2.5px solid #000; box-shadow: 4px 4px 0px #FFE600;" />
-        <br/>
-        <em>Interactive Canvas Reticles • Drag & Drop Feed • Real-time Stats</em>
-      </td>
-      <td width="50%" align="center">
-        <b>[ AWS CLOUD NODE // 稼働中ライブ環境 ]</b><br/><br/>
-        <img src="assets/preview-aws.png" alt="AWS EC2 Production UI" width="100%" style="border: 2.5px solid #000; box-shadow: 4px 4px 0px #00F0FF;" />
-        <br/>
-        <em>Deployed on AWS EC2 • Automated Daily Credit Matrix • Nginx Gateway</em>
-      </td>
-    </tr>
-  </table>
+  <p><b>[ NEURAL VISION ANALYZER // 次世代解析ステーション ]</b></p>
+  <img src="assets/preview-analyzer.png" alt="Neo-Brutalist Traffic AI Analyzer Interface" width="95%" style="border: 3px solid #000; box-shadow: 6px 6px 0px #FFE600;" />
+  <br/><br/>
+  <em>⚡ Full Neo-Brutalist HUD • Real-time Canvas Reticle Detection • Multi-Agent Telemetry</em>
 </div>
 
 ---
