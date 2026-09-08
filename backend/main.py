@@ -52,9 +52,12 @@ UPLOAD_DIR.mkdir(
 BASE_DIR = Path(__file__).parent.parent
 MODEL_PATH = BASE_DIR / "yolo11n.pt"
 
-print(f"Loading YOLO model from: {MODEL_PATH}")
-
-model = YOLO(str(MODEL_PATH))
+if MODEL_PATH.exists():
+    print(f"Loading YOLO model from: {MODEL_PATH}")
+    model = YOLO(str(MODEL_PATH))
+else:
+    print(f"Local model not found at {MODEL_PATH}, auto-downloading 'yolo11n.pt'...")
+    model = YOLO("yolo11n.pt")
 
 print("YOLO model loaded successfully!")
 
