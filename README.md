@@ -1,4 +1,4 @@
-﻿<p align="center">
+<p align="center">
   <img src="https://capsule-render.vercel.app/api?type=rect&color=090a10&height=18&section=header" width="100%" />
 </p>
 
@@ -40,9 +40,9 @@
 Engineered for city planners, surveillance hubs, and autonomous traffic command centers, the system couples the ultralight **Ultralytics YOLOv11** neural network with an asynchronous **FastAPI** backend and an electric HUD frontend featuring tactile spring physics, solid ink drop shadows, warning hazard stripes, and targeting canvas reticles.
 
 ### 🌐 Live Deployment Telemetry
-* **Cloud Node Host:** http://65.2.194.60/analysis.html
-* **API Gateway Health:** http://65.2.194.60:8000/api/health
-* **Target Architecture:** AWS EC2 Ubuntu Linux Node + Nginx Reverse Proxy
+* **Cloud Node Host:** `http://65.2.194.60/analysis.html` (Port 80 HTTP)
+* **API Gateway Health:** `http://65.2.194.60/api/health` (Port 80 via Nginx Reverse Proxy)
+* **Target Architecture:** AWS EC2 Ubuntu Node + Nginx Reverse Proxy (Unified Port 80)
 
 ---
 
@@ -180,13 +180,13 @@ uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 
 # 5. Open Frontend
 # Open index.html in your browser or launch VS Code Live Server on port 5500
-`
+```
 
 ---
 
-### B. AWS EC2 Cloud Deployment Guide
+### B. AWS EC2 Cloud Deployment Guide (Unified Nginx Port 80 Gateway)
 
-`ash
+```bash
 # 1. SSH into your EC2 instance via MobaXterm / Terminal
 ssh -i "your-key.pem" ubuntu@YOUR_EC2_PUBLIC_IP
 
@@ -194,22 +194,56 @@ ssh -i "your-key.pem" ubuntu@YOUR_EC2_PUBLIC_IP
 git clone https://github.com/sivanandan21/traffic-ai.git
 cd traffic-ai/backend
 
-# 3. Activate venv & install requirements
+# 3. Activate venv & install dependencies
 python3 -m venv venv
 source venv/bin/activate
 pip install -r ../requirements.txt
 
-# 4. Run backend permanently in background
-nohup uvicorn main:app --host 0.0.0.0 --port 8000 > uvicorn.log 2>&1 &
+# 4. Run FastAPI backend in background on local loopback (port 8000)
+nohup uvicorn main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
 
-# 5. Serve frontend with Nginx
+# 5. Copy frontend static assets to web root
 sudo cp -r ~/traffic-ai/*.html ~/traffic-ai/*.css ~/traffic-ai/*.js /var/www/html/
-`
+```
 
-> **IMPORTANT AWS SECURITY GROUP NOTE:**  
-> Ensure your EC2 Security Group allows Inbound Traffic for:
-> * **Port 80 (HTTP)** — Frontend Web GUI
-> * **Port 8000 (Custom TCP)** — FastAPI Backend (if calling directly)
+#### 6. Configure Nginx Reverse Proxy (`/etc/nginx/sites-available/default`)
+
+Edit your Nginx configuration so Port 80 serves both frontend HTML and forwards `/api/` calls to FastAPI:
+
+```nginx
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html;
+
+    server_name _;
+
+    # Frontend Web GUI
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Reverse Proxy /api/ to FastAPI Backend on port 8000
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        client_max_body_size 20M;
+    }
+}
+```
+
+```bash
+# Test & restart Nginx
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+> 🛡️ **SECURITY & NETWORK ADVANTAGE:**  
+> By using Nginx as a reverse proxy on **Port 80**, you only need to allow **Port 80 (HTTP)** in your AWS Security Group. Port 8000 stays closed to the public internet (`127.0.0.1`), preventing external attacks and completely eliminating browser CORS issues.
 
 ---
 
