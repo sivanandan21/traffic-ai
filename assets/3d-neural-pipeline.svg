@@ -1,0 +1,110 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 180" width="100%" height="180">
+  <defs>
+    <style>
+      @keyframes pulseFlow {
+        0% { stroke-dashoffset: 60; }
+        100% { stroke-dashoffset: 0; }
+      }
+      @keyframes travelPacket1 {
+        0% { transform: translateX(0px); opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: translateX(130px); opacity: 0; }
+      }
+      @keyframes travelPacket2 {
+        0% { transform: translateX(0px); opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: translateX(130px); opacity: 0; }
+      }
+      @keyframes travelPacket3 {
+        0% { transform: translateX(0px); opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: translateX(130px); opacity: 0; }
+      }
+      @keyframes nodeGlow {
+        0%, 100% { filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.4)); }
+        50% { filter: drop-shadow(0 0 10px rgba(255, 230, 0, 0.7)); }
+      }
+      .font-mono { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+      .font-bold { font-family: 'Space Grotesk', sans-serif; font-weight: 800; }
+      .dash-line { stroke-dasharray: 6,4; animation: pulseFlow 1.2s linear infinite; }
+      .packet-1 { animation: travelPacket1 1.8s ease-in-out infinite; }
+      .packet-2 { animation: travelPacket2 1.8s ease-in-out infinite 0.6s; }
+      .packet-3 { animation: travelPacket3 1.8s ease-in-out infinite 1.2s; }
+      .node-card { animation: nodeGlow 4s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <!-- Background container -->
+  <rect x="6" y="6" width="938" height="168" rx="4" fill="#090a12" stroke="#1c2237" stroke-width="1.5" />
+
+  <!-- Connecting Bus Lines -->
+  <line x1="210" y1="90" x2="270" y2="90" stroke="#00f0ff" stroke-width="3" class="dash-line" />
+  <line x1="450" y1="90" x2="510" y2="90" stroke="#ffe600" stroke-width="3" class="dash-line" />
+  <line x1="690" y1="90" x2="750" y2="90" stroke="#ff2a85" stroke-width="3" class="dash-line" />
+
+  <!-- Traveling Energy Data Packets -->
+  <g transform="translate(200, 90)">
+    <circle cx="0" cy="0" r="5" fill="#00f0ff" class="packet-1" style="filter: drop-shadow(0 0 5px #00f0ff);" />
+  </g>
+  <g transform="translate(440, 90)">
+    <circle cx="0" cy="0" r="5" fill="#ffe600" class="packet-2" style="filter: drop-shadow(0 0 5px #ffe600);" />
+  </g>
+  <g transform="translate(680, 90)">
+    <circle cx="0" cy="0" r="5" fill="#ff2a85" class="packet-3" style="filter: drop-shadow(0 0 5px #ff2a85);" />
+  </g>
+
+  <!-- ==================== NODE 1: CLIENT HUD ==================== -->
+  <g transform="translate(30, 28)">
+    <rect x="4" y="4" width="180" height="124" rx="3" fill="#ffe600" />
+    <rect x="0" y="0" width="180" height="124" rx="3" fill="#121524" stroke="#000000" stroke-width="2.5" />
+    <rect x="0" y="0" width="180" height="24" fill="#000000" />
+    <text x="8" y="16" fill="#ffe600" class="font-mono" font-size="10" font-weight="700">01 // CLIENT HUD</text>
+    <text x="12" y="52" fill="#ffffff" class="font-bold" font-size="15">NEO-BRUTALIST UI</text>
+    <text x="12" y="72" fill="#00f0ff" class="font-mono" font-size="10">HTML5 / CSS / Canvas</text>
+    <text x="12" y="92" fill="#9aa4bf" class="font-mono" font-size="9">Drag & Drop Image Feed</text>
+    <rect x="12" y="102" width="70" height="14" fill="#ff2a85" rx="2" />
+    <text x="16" y="113" fill="#ffffff" class="font-mono" font-size="8" font-weight="800">PORT 80</text>
+  </g>
+
+  <!-- ==================== NODE 2: NGINX GATEWAY ==================== -->
+  <g transform="translate(270, 28)">
+    <rect x="4" y="4" width="180" height="124" rx="3" fill="#00f0ff" />
+    <rect x="0" y="0" width="180" height="124" rx="3" fill="#121524" stroke="#000000" stroke-width="2.5" />
+    <rect x="0" y="0" width="180" height="24" fill="#000000" />
+    <text x="8" y="16" fill="#00f0ff" class="font-mono" font-size="10" font-weight="700">02 // NGINX GATEWAY</text>
+    <text x="12" y="52" fill="#ffffff" class="font-bold" font-size="15">REVERSE PROXY</text>
+    <text x="12" y="72" fill="#ffe600" class="font-mono" font-size="10">AWS EC2 (65.2.194.60)</text>
+    <text x="12" y="92" fill="#9aa4bf" class="font-mono" font-size="9">Unified Port 80 Routing</text>
+    <rect x="12" y="102" width="105" height="14" fill="#00ff88" rx="2" />
+    <text x="16" y="113" fill="#000000" class="font-mono" font-size="8" font-weight="800">CORS-FREE GATE</text>
+  </g>
+
+  <!-- ==================== NODE 3: FASTAPI BACKEND ==================== -->
+  <g transform="translate(510, 28)">
+    <rect x="4" y="4" width="180" height="124" rx="3" fill="#ff2a85" />
+    <rect x="0" y="0" width="180" height="124" rx="3" fill="#121524" stroke="#000000" stroke-width="2.5" />
+    <rect x="0" y="0" width="180" height="24" fill="#000000" />
+    <text x="8" y="16" fill="#ff2a85" class="font-mono" font-size="10" font-weight="700">03 // FASTAPI ASGI</text>
+    <text x="12" y="52" fill="#ffffff" class="font-bold" font-size="15">UVICORN ENGINE</text>
+    <text x="12" y="72" fill="#ff2a85" class="font-mono" font-size="10">Async Python 3.10+</text>
+    <text x="12" y="92" fill="#9aa4bf" class="font-mono" font-size="9">POST /api/analyze</text>
+    <rect x="12" y="102" width="95" height="14" fill="#252d47" rx="2" />
+    <text x="16" y="113" fill="#00f0ff" class="font-mono" font-size="8" font-weight="800">127.0.0.1:8000</text>
+  </g>
+
+  <!-- ==================== NODE 4: YOLOv11 CORE ==================== -->
+  <g transform="translate(750, 28)">
+    <rect x="4" y="4" width="170" height="124" rx="3" fill="#00ff88" />
+    <rect x="0" y="0" width="170" height="124" rx="3" fill="#121524" stroke="#000000" stroke-width="2.5" />
+    <rect x="0" y="0" width="170" height="24" fill="#000000" />
+    <text x="8" y="16" fill="#00ff88" class="font-mono" font-size="10" font-weight="700">04 // NEURAL TENSOR</text>
+    <text x="12" y="52" fill="#ffffff" class="font-bold" font-size="15">YOLOv11 NANO</text>
+    <text x="12" y="72" fill="#00ff88" class="font-mono" font-size="10">yolo11n.pt PyTorch</text>
+    <text x="12" y="92" fill="#9aa4bf" class="font-mono" font-size="9">&lt; 35ms Inference</text>
+    <rect x="12" y="102" width="90" height="14" fill="#ffe600" rx="2" />
+    <text x="16" y="113" fill="#000000" class="font-mono" font-size="8" font-weight="800">AUTO-DOWNLOAD</text>
+  </g>
+</svg>
