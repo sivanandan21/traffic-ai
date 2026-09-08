@@ -4,32 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traffic AI - Neural Vision Architecture & Specifications</title>
+    <title>Traffic AI // 機密技術仕様 - Neural Vision Architecture & Specifications</title>
     <meta name="description" content="Technical details and specifications of Traffic AI deep learning computer vision model.">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+    <!-- Hazard Alert Strip -->
+    <div class="hazard-strip"></div>
+
     <!-- Header Navbar -->
     <header class="navbar">
         <a href="index.html" class="logo">
-            <div class="logo-icon">📷</div>
+            <div class="logo-icon">⚡</div>
             Traffic<span>AI</span>
+            <span class="logo-badge">VER 3.4</span>
+            <span class="kanji-sub" style="font-size: 11px; color: var(--anime-yellow);">技術仕様</span>
         </a>
 
         <button class="menu-toggle" aria-label="Toggle Navigation">☰</button>
 
         <nav>
-            <a href="index.html">Home</a>
-            <a href="analysis.html">Analyzer</a>
-            <a href="history.html">History</a>
-            <a href="about.html" class="active">About</a>
+            <a href="index.html"><span>//</span> Home</a>
+            <a href="analysis.html"><span>//</span> Analyzer</a>
+            <a href="history.html"><span>//</span> Logs</a>
+            <a href="about.html" class="active"><span>//</span> Dossier</a>
         </nav>
 
         <div class="nav-actions">
             <div class="credits">
-                <span>Daily Credits</span>
+                <span>DAILY CREDITS</span>
                 <strong id="creditCount">50</strong>
             </div>
         </div>
@@ -41,40 +46,44 @@
         <section class="section-padding">
             <div class="section-heading">
                 <div>
-                    <div class="tag">DEEP LEARNING PIPELINE</div>
-                    <h2>Neural Network Architecture</h2>
+                    <div class="tag yellow">CONFIDENTIAL DOSSIER // 極秘設計仕様書</div>
+                    <h2>Neural Vision Architecture Pipeline</h2>
                 </div>
 
                 <div class="status-badge">
-                    <span class="status-dot"></span> Model Version 3.4
+                    <span class="status-dot"></span> MODEL CORE: YOLO11-N // 正常稼働
                 </div>
             </div>
 
 
             <!-- Architecture Pipeline Grid -->
-            <div class="grid-4" style="margin-bottom: 40px;">
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: rgba(56, 189, 248, 0.12); color: var(--cyan);">01</div>
+            <div class="grid-4" style="margin-bottom: 45px;">
+                <div class="feature-card" data-step="[ STEP 01 ]">
+                    <div class="feature-icon">01</div>
                     <h3>Frame Preprocessing</h3>
-                    <p>Image resize to 640x640 tensor format, histogram normalization, and RGB channel alignment.</p>
+                    <p style="font-family: var(--font-mono); font-size: 12px; color: var(--anime-yellow); margin-bottom: 6px;">前処理 // TENSOR NORMALIZE</p>
+                    <p>Image resize to 640×640 multi-channel tensor format, histogram normalization, and RGB color space alignment.</p>
                 </div>
 
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: rgba(129, 140, 248, 0.12); color: var(--accent);">02</div>
+                <div class="feature-card" data-step="[ STEP 02 ]">
+                    <div class="feature-icon" style="background: var(--anime-cyan);">02</div>
                     <h3>Feature Extraction</h3>
-                    <p>Backbone Convolutional Neural Network (CNN) extracts high-level spatial feature maps.</p>
+                    <p style="font-family: var(--font-mono); font-size: 12px; color: var(--anime-cyan); margin-bottom: 6px;">特徴抽出 // CNN BACKBONE</p>
+                    <p>Backbone Convolutional Neural Network extracts high-dimensional spatial feature maps across multiscale receptive fields.</p>
                 </div>
 
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: rgba(192, 132, 252, 0.12); color: var(--purple);">03</div>
+                <div class="feature-card" data-step="[ STEP 03 ]">
+                    <div class="feature-icon" style="background: var(--anime-pink); color: #fff;">03</div>
                     <h3>Bounding Box NMS</h3>
-                    <p>Non-Maximum Suppression filters overlapping bounding boxes with threshold confidence &gt; 0.85.</p>
+                    <p style="font-family: var(--font-mono); font-size: 12px; color: var(--anime-pink); margin-bottom: 6px;">領域選別 // OVERLAP SUPPRESSION</p>
+                    <p>Non-Maximum Suppression filters duplicate candidate bounding boxes with confidence thresholds > 0.25 IoU alignment.</p>
                 </div>
 
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: rgba(52, 211, 153, 0.12); color: var(--emerald);">04</div>
+                <div class="feature-card" data-step="[ STEP 04 ]">
+                    <div class="feature-icon" style="background: var(--anime-green);">04</div>
                     <h3>Density Calculation</h3>
-                    <p>Aggregates counts across classes (Cars, Bikes, Pedestrians) to compute traffic index ratio.</p>
+                    <p style="font-family: var(--font-mono); font-size: 12px; color: var(--anime-green); margin-bottom: 6px;">混雑計算 // VOLUMETRIC INDEX</p>
+                    <p>Aggregates counts across multi-class vectors (Cars, Bikes, Pedestrians) to compute bottleneck ratio states.</p>
                 </div>
             </div>
 
@@ -82,8 +91,8 @@
             <!-- Technical Benchmark Table -->
             <div class="section-heading" style="margin-top: 50px; margin-bottom: 25px;">
                 <div>
-                    <div class="tag">MODEL BENCHMARKS</div>
-                    <h2>Computer Vision System Specifications</h2>
+                    <div class="tag cyan">BENCHMARK MATRIX // 性能評価指標</div>
+                    <h2>Vision System Hardware & Accuracy Specs</h2>
                 </div>
             </div>
 
@@ -91,42 +100,42 @@
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Parameter</th>
-                            <th>Specification</th>
-                            <th>Benchmark Value</th>
-                            <th>Notes</th>
+                            <th>PARAMETER // 項目</th>
+                            <th>SPECIFICATION // 仕様</th>
+                            <th>BENCHMARK VALUE // 実測値</th>
+                            <th>NOTES // 補足</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="font-weight: 600;">Model Framework</td>
-                            <td>Custom Vision Transformer / YOLO backbone</td>
-                            <td><span class="pill-level pill-low">Optimized</span></td>
-                            <td>Compiled for TensorRT acceleration</td>
+                            <td style="font-family: var(--font-mono); font-weight: 800; color: #fff;">MODEL ARCHITECTURE</td>
+                            <td>YOLO11 Nano Vision Core Engine</td>
+                            <td><span class="pill-level pill-low">OPTIMIZED</span></td>
+                            <td style="color: var(--text-muted);">Ultralytics PyTorch / TensorRT runtime</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Inference Speed</td>
-                            <td>FP16 Precision Execution</td>
-                            <td style="color: var(--accent); font-weight: 700;">38 ms / frame</td>
-                            <td>Real-time 30 FPS ready</td>
+                            <td style="font-family: var(--font-mono); font-weight: 800; color: #fff;">INFERENCE LATENCY</td>
+                            <td>FP16 / FP32 Precision Execution</td>
+                            <td style="color: var(--anime-yellow); font-family: var(--font-mono); font-weight: 800;">38 ms / frame</td>
+                            <td style="color: var(--text-muted);">Real-time high-throughput surveillance ready</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Detection Accuracy</td>
-                            <td>mAP@0.5 IoU Threshold</td>
-                            <td style="color: var(--cyan); font-weight: 700;">99.4%</td>
-                            <td>Validated on COCO & Traffic dataset</td>
+                            <td style="font-family: var(--font-mono); font-weight: 800; color: #fff;">DETECTION ACCURACY</td>
+                            <td>mAP@0.5 IoU Threshold Validation</td>
+                            <td style="color: var(--anime-cyan); font-family: var(--font-mono); font-weight: 800;">99.4%</td>
+                            <td style="color: var(--text-muted);">Validated against standard COCO & urban datasets</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Classes Supported</td>
-                            <td>Cars, Motorcycles, Bicycles, Buses, Pedestrians</td>
-                            <td><span class="pill-level pill-low">Multi-Class</span></td>
-                            <td>Automatic confidence rating per box</td>
+                            <td style="font-family: var(--font-mono); font-weight: 800; color: #fff;">CLASSES SUPPORTED</td>
+                            <td>Cars, Motorcycles, Bicycles, Pedestrians</td>
+                            <td><span class="pill-level pill-medium">MULTI-CLASS</span></td>
+                            <td style="color: var(--text-muted);">Simultaneous bounding box spatial tracking</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600;">Input Resolution</td>
-                            <td>Max 4K (3840 x 2160 pixels)</td>
-                            <td>10 MB File Limit</td>
-                            <td>Downsampled dynamically for speed</td>
+                            <td style="font-family: var(--font-mono); font-weight: 800; color: #fff;">MAX INPUT PAYLOAD</td>
+                            <td>High-res frames up to 4K resolution</td>
+                            <td style="color: var(--anime-green); font-family: var(--font-mono); font-weight: 800;">10 MB Limit</td>
+                            <td style="color: var(--text-muted);">Dynamic hardware tensor downsampling for speed</td>
                         </tr>
                     </tbody>
                 </table>
@@ -139,12 +148,13 @@
 
     <!-- Footer -->
     <footer>
+        <div class="hazard-strip" style="margin-bottom: 30px;"></div>
         <div class="footer-content">
             <div class="footer-brand">
-                Traffic<span>AI</span> Vision
+                Traffic<span>AI</span> // 交通視覚知能システム
             </div>
             <div class="footer-text">
-                TrafficAI © 2026 • AI-Powered Visual Traffic Intelligence
+                NEO-BRUTALIST VISION ENGINE • TRAFFIC-AI © 2026 • ALL RIGHTS RESERVED
             </div>
         </div>
     </footer>

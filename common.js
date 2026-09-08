@@ -13,15 +13,15 @@ function getStoredCredits() {
     const today = new Date().toDateString();
     const lastReset = localStorage.getItem("traffic_ai_last_reset");
     const val = localStorage.getItem(STORAGE_KEYS.CREDITS);
-    const num = val !== null ? parseInt(val, 10) : 0;
 
-    // Reset daily or upgrade existing old credit values (< 50)
-    if (lastReset !== today || val === null || num < 50) {
+    // Reset only on a new day or if no credits have been stored yet
+    if (lastReset !== today || val === null) {
         localStorage.setItem("traffic_ai_last_reset", today);
         setStoredCredits(50);
         return 50;
     }
-    return num;
+
+    return parseInt(val, 10);
 }
 
 function setStoredCredits(val) {
@@ -51,7 +51,7 @@ function updateCreditDisplay(count) {
     }
 }
 
-// Toast Notification System
+// Toast Notification System (Anime Alert Badges)
 function showToast(message, type = "info") {
     let container = document.querySelector(".toast-container");
     if (!container) {
@@ -62,8 +62,12 @@ function showToast(message, type = "info") {
 
     const toast = document.createElement("div");
     toast.className = `toast toast-${type}`;
+    const badgeLabel = type === 'error' ? 'ALERT // 警告' : (type === 'success' ? 'SUCCESS // 完了' : 'SYS // 通知');
+    const icon = type === 'error' ? '⚠️' : (type === 'success' ? '🎯' : '⚡');
+
     toast.innerHTML = `
-        <span class="toast-icon">${type === 'error' ? '⚠️' : '⚡'}</span>
+        <span class="toast-icon">${icon}</span>
+        <span style="color: var(--anime-yellow); font-weight: 900; margin-right: 4px;">[${badgeLabel}]</span>
         <span>${message}</span>
     `;
 
@@ -72,8 +76,8 @@ function showToast(message, type = "info") {
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
-        toast.style.transition = 'all 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
+        toast.style.transition = 'all 0.2s ease';
+        setTimeout(() => toast.remove(), 200);
     }, 3500);
 }
 

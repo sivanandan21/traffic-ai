@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
 
     const API_URL =
-        "/api";
+        "http://127.0.0.1:8000/api";
 
 
     // ==========================================
@@ -147,64 +147,43 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
 
     function loadPresetUrl(url) {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
 
-        const img =
-            new Image();
-
-
-        img.crossOrigin =
-            "Anonymous";
-
+        if (analysisStatus) {
+            analysisStatus.textContent = "FETCHING SCENE DATA // 読み込み中...";
+        }
 
         img.onload = () => {
-
-            currentImage =
-                img;
-
-
-            /*
-             * Preset images are remote images.
-             *
-             * They don't give us a normal
-             * File object, so we don't send
-             * them to FastAPI yet.
-             */
-
-            selectedFile =
-                null;
-
-
-            renderImageOnCanvas(
-                img
-            );
-
-
+            currentImage = img;
+            renderImageOnCanvas(img);
             showCanvasView();
 
-
-            if (analysisStatus) {
-
-                analysisStatus.textContent =
-                    "Preset image ready — upload an image to analyze";
-
-            }
-
+            // Try to fetch as Blob so user can run detection on preset
+            fetch(url)
+                .then(res => res.blob())
+                .then(blob => {
+                    selectedFile = new File([blob], "preset_traffic.jpg", { type: "image/jpeg" });
+                    if (analysisStatus) {
+                        analysisStatus.textContent = "PRESET LOADED // 待機中 (READY TO DETECT)";
+                    }
+                    if (analyzeBtn) {
+                        analyzeBtn.disabled = false;
+                    }
+                })
+                .catch(() => {
+                    selectedFile = null;
+                    if (analysisStatus) {
+                        analysisStatus.textContent = "PRESET LOADED // 待機中 (UPLOAD FOR BACKEND)";
+                    }
+                });
         };
-
 
         img.onerror = () => {
-
-            showToast(
-                "Could not load preset image.",
-                "error"
-            );
-
+            showToast("FAILED TO LOAD PRESET FRAME // 読み込み失敗", "error");
         };
 
-
-        img.src =
-            url;
-
+        img.src = url;
     }
 
 
@@ -1045,11 +1024,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ==========================================
-    // DRAW REAL YOLO BOUNDING BOXES
+    // DRAW REAL YOLO BOUNDING BOXES (ANIME MECHA HUD)
     // ==========================================
 
     function drawBoundingBoxes(boxes) {
-
         // Restore the original image first
         renderImageOnCanvas(currentImage);
 
@@ -1057,58 +1035,42 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Scale text according to image size
+        // Scale text and lines according to image size
         const fontSize = Math.max(
             12,
-            Math.min(20, Math.floor(visionCanvas.width / 60))
+            Math.min(22, Math.floor(visionCanvas.width / 50))
         );
 
         const lineWidth = Math.max(
             2,
-            Math.floor(visionCanvas.width / 400)
+            Math.floor(visionCanvas.width / 350)
         );
 
         boxes.forEach((box) => {
+            const className = String(box.class || "object").toLowerCase();
 
-            // ----------------------------------
-            // Class name
-            // ----------------------------------
-
-            const className =
-                String(box.class || "object").toLowerCase();
-
-
-            // ----------------------------------
-            // Color
-            // ----------------------------------
-
-            let color = "#818cf8";
+            // Anime High-Voltage Palette
+            let color = "#a855f7"; // purple fallback
+            let displayName = "TARGET // 目標";
 
             if (className === "person") {
-                color = "#fbbf24";
+                color = "#ffe600"; // Neon Yellow
+                displayName = "PERSON // 歩行者";
+            } else if (className === "car") {
+                color = "#ff2a85"; // Hot Manga Pink
+                displayName = "CAR // 車両";
+            } else if (className === "motorcycle") {
+                color = "#00f0ff"; // Cyber Cyan
+                displayName = "MOTOR // 二輪";
+            } else if (className === "bicycle") {
+                color = "#00f0ff"; // Cyber Cyan
+                displayName = "BIKE // 自転車";
             }
-
-            if (
-                className === "bicycle" ||
-                className === "motorcycle"
-            ) {
-                color = "#38bdf8";
-            }
-
-            if (className === "car") {
-                color = "#818cf8";
-            }
-
-
-            // ----------------------------------
-            // Coordinates
-            // ----------------------------------
 
             const x = Number(box.x);
             const y = Number(box.y);
             const width = Number(box.width);
             const height = Number(box.height);
-
 
             // Ignore invalid boxes
             if (
@@ -1122,141 +1084,104 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-
-            // ----------------------------------
-            // Draw bounding box
-            // ----------------------------------
-
+            // 1. Draw Target Box Outline
             ctx.strokeStyle = color;
             ctx.lineWidth = lineWidth;
+            ctx.strokeRect(x, y, width, height);
 
-            ctx.strokeRect(
-                x,
-                y,
-                width,
-                height
-            );
+            // 2. Draw Mecha HUD Corner Brackets (Target Lock-on)
+            const bracketLen = Math.max(6, Math.min(24, Math.min(width, height) / 3));
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = lineWidth + 1.5;
 
+            // Top-Left
+            ctx.beginPath();
+            ctx.moveTo(x, y + bracketLen);
+            ctx.lineTo(x, y);
+            ctx.lineTo(x + bracketLen, y);
+            ctx.stroke();
 
-            // ----------------------------------
-            // Confidence
-            // ----------------------------------
+            // Top-Right
+            ctx.beginPath();
+            ctx.moveTo(x + width - bracketLen, y);
+            ctx.lineTo(x + width, y);
+            ctx.lineTo(x + width, y + bracketLen);
+            ctx.stroke();
 
-            const confidence =
-                Math.round(
-                    Number(box.confidence || 0) * 100
-                );
+            // Bottom-Left
+            ctx.beginPath();
+            ctx.moveTo(x, y + height - bracketLen);
+            ctx.lineTo(x, y + height);
+            ctx.lineTo(x + bracketLen, y + height);
+            ctx.stroke();
 
+            // Bottom-Right
+            ctx.beginPath();
+            ctx.moveTo(x + width - bracketLen, y + height);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo(x + width, y + height - bracketLen);
+            ctx.stroke();
 
-            // ----------------------------------
-            // Friendly class name
-            // ----------------------------------
+            // 3. Draw subtle center reticle mark (+)
+            const cx = x + width / 2;
+            const cy = y + height / 2;
+            const reticleSize = Math.min(6, Math.min(width, height) / 5);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(cx - reticleSize, cy);
+            ctx.lineTo(cx + reticleSize, cy);
+            ctx.moveTo(cx, cy - reticleSize);
+            ctx.lineTo(cx, cy + reticleSize);
+            ctx.stroke();
 
-            let displayName = className;
+            // 4. Bounding Box Label (Neo-Brutalist Sticker)
+            const confidence = Math.round(Number(box.confidence || 0) * 100);
+            const label = `[ ${displayName} ${confidence}% ]`;
 
-            if (className === "person") {
-                displayName = "Person";
-            }
-
-            else if (className === "car") {
-                displayName = "Car";
-            }
-
-            else if (className === "bicycle") {
-                displayName = "Bicycle";
-            }
-
-            else if (className === "motorcycle") {
-                displayName = "Motorcycle";
-            }
-
-
-            const label =
-                `${displayName} ${confidence}%`;
-
-
-            // ----------------------------------
-            // Text
-            // ----------------------------------
-
-            ctx.font =
-                `600 ${fontSize}px Inter, Arial, sans-serif`;
-
-
-            const textWidth =
-                ctx.measureText(label).width;
-
-
-            const padding = 6;
-
-            const labelWidth =
-                textWidth + padding * 2;
-
-            const labelHeight =
-                fontSize + padding * 2;
-
-
-            // ----------------------------------
-            // Keep label inside image
-            // ----------------------------------
+            ctx.font = `800 ${fontSize}px 'JetBrains Mono', 'Space Grotesk', monospace, sans-serif`;
+            const textWidth = ctx.measureText(label).width;
+            const paddingX = 8;
+            const paddingY = 5;
+            const labelWidth = textWidth + paddingX * 2;
+            const labelHeight = fontSize + paddingY * 2;
 
             let labelX = x;
+            let labelY = y - labelHeight - 3;
 
-            let labelY =
-                y - labelHeight;
-
-
-            if (labelX + labelWidth >
-                visionCanvas.width) {
-
-                labelX =
-                    visionCanvas.width -
-                    labelWidth;
-
+            // Keep label inside horizontal boundaries
+            if (labelX + labelWidth > visionCanvas.width) {
+                labelX = visionCanvas.width - labelWidth - 2;
             }
-
-
             if (labelX < 0) {
-                labelX = 0;
+                labelX = 2;
             }
 
-
-            // If there isn't enough room above
-            // the box, put the label inside it.
-
+            // If there's no room above, draw inside top of box
             if (labelY < 0) {
-                labelY = y;
+                labelY = y + 4;
             }
 
+            // 4a. Brutalist Hard Drop Shadow
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(labelX + 3, labelY + 3, labelWidth, labelHeight);
 
-            // ----------------------------------
-            // Label background
-            // ----------------------------------
-
+            // 4b. Neon Sticker Background
             ctx.fillStyle = color;
+            ctx.fillRect(labelX, labelY, labelWidth, labelHeight);
 
-            ctx.fillRect(
-                labelX,
-                labelY,
-                labelWidth,
-                labelHeight
-            );
+            // 4c. Bold Black Ink Border
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(labelX, labelY, labelWidth, labelHeight);
 
-
-            // ----------------------------------
-            // Label text
-            // ----------------------------------
-
-            ctx.fillStyle = "#070810";
-
+            // 4d. Stark Black Text
+            ctx.fillStyle = "#000000";
             ctx.fillText(
                 label,
-                labelX + padding,
-                labelY +
-                fontSize +
-                padding - 2
+                labelX + paddingX,
+                labelY + fontSize + paddingY - 3
             );
-
         });
     }
 

@@ -21,12 +21,10 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
 
-    allow_origins=[
-        "http://localhost:5500",
-        "http://127.0.0.1:5500",
-    ],
+    # Allow all origins in development so any port / file:// works
+    allow_origins=["*"],
 
-    allow_credentials=True,
+    allow_credentials=False,
 
     allow_methods=["*"],
 
@@ -49,11 +47,17 @@ UPLOAD_DIR.mkdir(
 # LOAD YOLO
 # ==========================================
 
-print("Loading YOLO model...")
+# Path to YOLO model — resolved relative to this file so it works
+# regardless of which directory you run uvicorn/python from.
+BASE_DIR = Path(__file__).parent.parent
+MODEL_PATH = BASE_DIR / "yolo11n.pt"
 
-model = YOLO("yolo11n.pt")
+print(f"Loading YOLO model from: {MODEL_PATH}")
+
+model = YOLO(str(MODEL_PATH))
 
 print("YOLO model loaded successfully!")
+
 
 
 # ==========================================

@@ -4,32 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traffic AI - Analysis History Archive</title>
+    <title>Traffic AI // 記録書庫 - Analysis History Archive</title>
     <meta name="description" content="View past traffic visual analysis logs and vehicle counting history records.">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+    <!-- Hazard Alert Strip -->
+    <div class="hazard-strip"></div>
+
     <!-- Header Navbar -->
     <header class="navbar">
         <a href="index.html" class="logo">
-            <div class="logo-icon">📷</div>
+            <div class="logo-icon">⚡</div>
             Traffic<span>AI</span>
+            <span class="logo-badge">VER 3.4</span>
+            <span class="kanji-sub" style="font-size: 11px; color: var(--anime-yellow);">記録書庫</span>
         </a>
 
         <button class="menu-toggle" aria-label="Toggle Navigation">☰</button>
 
         <nav>
-            <a href="index.html">Home</a>
-            <a href="analysis.html">Analyzer</a>
-            <a href="history.html" class="active">History</a>
-            <a href="about.html">About</a>
+            <a href="index.html"><span>//</span> Home</a>
+            <a href="analysis.html"><span>//</span> Analyzer</a>
+            <a href="history.html" class="active"><span>//</span> Logs</a>
+            <a href="about.html"><span>//</span> Dossier</a>
         </nav>
 
         <div class="nav-actions">
             <div class="credits">
-                <span>Daily Credits</span>
+                <span>DAILY CREDITS</span>
                 <strong id="creditCount">50</strong>
             </div>
         </div>
@@ -41,20 +46,20 @@
         <section class="section-padding">
             <div class="section-heading">
                 <div>
-                    <div class="tag">DATA LOGS</div>
-                    <h2>Recent Analysis History</h2>
+                    <div class="tag">FLIGHT RECORDER // 過去履歴記録</div>
+                    <h2>Telemetry Log Archive</h2>
                 </div>
 
-                <button id="clearHistoryBtn" class="secondary-btn" style="padding: 8px 18px; font-size: 13px;">
-                    🗑️ Clear History Log
+                <button id="clearHistoryBtn" class="secondary-btn" style="padding: 10px 20px; font-size: 13px;">
+                    🗑️ PURGE LOGS // 履歴抹消
                 </button>
             </div>
 
             <!-- Toolbar & Filter Search -->
             <div class="table-toolbar">
-                <input type="text" id="historySearch" class="search-input" placeholder="🔍 Search history by level, time...">
-                <div style="font-size: 13px; color: var(--muted); align-self: center;">
-                    Saved in local storage
+                <input type="text" id="historySearch" class="search-input" placeholder="🔍 FILTER BY LEVEL, TIMESTAMP...">
+                <div style="font-family: var(--font-mono); font-size: 12px; color: var(--anime-cyan); background: #000; padding: 6px 12px; border: 1.5px solid #2d334d;">
+                    LOCAL STATE PERSISTENCE: READY
                 </div>
             </div>
 
@@ -63,12 +68,12 @@
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Timestamp</th>
-                            <th>Cars</th>
-                            <th>Bikes</th>
-                            <th>Pedestrians</th>
-                            <th>Total Objects</th>
-                            <th>Congestion Level</th>
+                            <th>TIMESTAMP // 日時</th>
+                            <th>CARS // 車両</th>
+                            <th>BIKES // 二輪</th>
+                            <th>PEDESTRIANS // 歩行者</th>
+                            <th>TOTAL // 総計</th>
+                            <th>CONGESTION STATUS // 状態</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
@@ -77,9 +82,9 @@
                 </table>
 
                 <div id="emptyHistoryState" class="empty-state" style="display: none;">
-                    <div class="empty-icon">📂</div>
-                    <h3>No Analysis Records Found</h3>
-                    <p style="font-size: 13px; margin-top: 5px;">Perform scans on the <a href="analysis.html" style="color: var(--accent);">Analyzer page</a> to populate log records.</p>
+                    <div class="empty-icon">📁</div>
+                    <h3 style="font-family: var(--font-heading); font-size: 20px;">NO TELEMETRY RECORDS FOUND</h3>
+                    <p style="font-family: var(--font-mono); font-size: 13px; margin-top: 6px;">Initiate vision scans in the <a href="analysis.html" style="color: var(--anime-yellow); font-weight: 700; text-decoration: underline;">Analyzer Suite</a> to populate grid log records.</p>
                 </div>
             </div>
         </section>
@@ -89,12 +94,13 @@
 
     <!-- Footer -->
     <footer>
+        <div class="hazard-strip" style="margin-bottom: 30px;"></div>
         <div class="footer-content">
             <div class="footer-brand">
-                Traffic<span>AI</span> Vision
+                Traffic<span>AI</span> // 交通視覚知能システム
             </div>
             <div class="footer-text">
-                TrafficAI © 2026 • AI-Powered Visual Traffic Intelligence
+                NEO-BRUTALIST VISION ENGINE • TRAFFIC-AI © 2026 • ALL RIGHTS RESERVED
             </div>
         </div>
     </footer>
@@ -126,16 +132,23 @@
                 filtered.forEach(item => {
                     const tr = document.createElement("tr");
                     let pillClass = "pill-low";
-                    if (item.level === "MEDIUM") pillClass = "pill-medium";
-                    if (item.level === "HIGH") pillClass = "pill-high";
+                    let levelLabel = "LOW // 軽度";
+                    if (item.level === "MEDIUM") {
+                        pillClass = "pill-medium";
+                        levelLabel = "MED // 注意";
+                    }
+                    if (item.level === "HIGH") {
+                        pillClass = "pill-high";
+                        levelLabel = "HIGH // 警戒";
+                    }
 
                     tr.innerHTML = `
-                        <td style="font-weight: 500;">${item.time} <small style="color: var(--muted); opacity: 0.7;">(${item.date || 'Today'})</small></td>
-                        <td>🚗 ${item.cars}</td>
-                        <td>🏍️ ${item.bikes}</td>
-                        <td>🧍 ${item.people}</td>
-                        <td style="font-weight: 700;">${item.total}</td>
-                        <td><span class="pill-level ${pillClass}">${item.level}</span></td>
+                        <td style="font-family: var(--font-mono); font-weight: 700; color: #fff;">${item.time} <small style="color: var(--text-dim); margin-left: 4px;">(${item.date || 'Today'})</small></td>
+                        <td style="color: var(--anime-cyan);">🚗 ${item.cars}</td>
+                        <td style="color: var(--anime-cyan);">🏍️ ${item.bikes}</td>
+                        <td style="color: var(--anime-yellow);">🧍 ${item.people}</td>
+                        <td style="font-family: var(--font-mono); font-weight: 900; font-size: 16px; color: #fff;">${item.total}</td>
+                        <td><span class="pill-level ${pillClass}">${levelLabel}</span></td>
                     `;
                     tableBody.appendChild(tr);
                 });
@@ -147,10 +160,10 @@
 
             if (clearBtn) {
                 clearBtn.addEventListener("click", () => {
-                    if (confirm("Are you sure you want to clear your local analysis history?")) {
+                    if (confirm("PURGE ALL TELEMETRY LOGS // 過去の記録を全て抹消しますか？")) {
                         clearStoredHistory();
                         renderHistory();
-                        showToast("History log cleared.", "info");
+                        showToast("TELEMETRY ARCHIVE CLEARED // 履歴を抹消しました", "info");
                     }
                 });
             }

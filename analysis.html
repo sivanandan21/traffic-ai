@@ -4,32 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traffic AI - AI Traffic Analyzer</title>
+    <title>Traffic AI // 分析室 - AI Traffic Analyzer</title>
     <meta name="description" content="Perform computer vision traffic analysis and vehicle detection on street photos.">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+    <!-- Hazard Alert Strip -->
+    <div class="hazard-strip"></div>
+
     <!-- Header Navbar -->
     <header class="navbar">
         <a href="index.html" class="logo">
-            <div class="logo-icon">📷</div>
+            <div class="logo-icon">⚡</div>
             Traffic<span>AI</span>
+            <span class="logo-badge">VER 3.4</span>
+            <span class="kanji-sub" style="font-size: 11px; color: var(--anime-yellow);">分析室</span>
         </a>
 
         <button class="menu-toggle" aria-label="Toggle Navigation">☰</button>
 
         <nav>
-            <a href="index.html">Home</a>
-            <a href="analysis.html" class="active">Analyzer</a>
-            <a href="history.html">History</a>
-            <a href="about.html">About</a>
+            <a href="index.html"><span>//</span> Home</a>
+            <a href="analysis.html" class="active"><span>//</span> Analyzer</a>
+            <a href="history.html"><span>//</span> Logs</a>
+            <a href="about.html"><span>//</span> Dossier</a>
         </nav>
 
         <div class="nav-actions">
             <div class="credits">
-                <span>Daily Credits</span>
+                <span>DAILY CREDITS</span>
                 <strong id="creditCount">50</strong>
             </div>
         </div>
@@ -41,13 +46,13 @@
         <section class="section-padding">
             <div class="section-heading">
                 <div>
-                    <div class="tag">AI TRAFFIC VISION</div>
-                    <h2>Traffic Analyzer & Vision Suite</h2>
+                    <div class="tag cyan">VISION SCAN STATION // 視覚解析</div>
+                    <h2>Traffic Vision Analyzer</h2>
                 </div>
 
                 <div class="status-badge">
                     <span class="status-dot"></span>
-                    <span id="analysisStatus">Ready for input</span>
+                    <span id="analysisStatus">READY // 待機中</span>
                 </div>
             </div>
 
@@ -59,73 +64,73 @@
 
                     <input type="file" id="imageInput" accept="image/*" hidden>
 
-                    <!-- Dropzone -->
+                    <!-- Dropzone / Ingestion Bay -->
                     <label for="imageInput" class="upload-area" id="uploadArea">
                         <div class="upload-icon-circle">↑</div>
-                        <h3>Upload Traffic Image</h3>
-                        <p>Click to select an image or drag and drop it here</p>
-                        <small>Supports JPG, PNG, WEBP • Max size 10 MB</small>
+                        <h3>FEED TARGET FRAME // 画像投入</h3>
+                        <p>Select street camera footage or drag & drop image</p>
+                        <small>JPG, PNG, WEBP • MAX 10 MB</small>
                     </label>
 
                     <!-- Interactive Vision Canvas -->
                     <div class="canvas-wrapper" id="canvasWrapper">
                         <canvas id="visionCanvas"></canvas>
                         <div class="canvas-actions">
-                            <button id="removeImage" class="remove-btn">✕ Clear Image</button>
-                            <small style="color: var(--muted); font-size: 12px;">Bounding boxes rendered via AI</small>
+                            <button id="removeImage" class="remove-btn">✕ CLEAR // 解除</button>
+                            <small style="font-family: var(--font-mono); color: var(--anime-cyan); font-size: 10px;">[ RETICLE HUD RENDERED ]</small>
                         </div>
                     </div>
 
                     <!-- Presets Selection -->
                     <div class="presets-container">
-                        <span>OR TRY A SAMPLE SCENE:</span>
+                        <span>SELECT TEST SCENE // 状況選択:</span>
                         <div class="preset-thumbs">
-                            <button class="preset-btn" dataset-preset="sample1">
+                            <button class="preset-btn" data-preset="sample1">
                                 <img src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=400&q=80" alt="Highway">
-                                <small>Highway</small>
+                                <small>01 // HIGHWAY</small>
                             </button>
-                            <button class="preset-btn" dataset-preset="sample2">
+                            <button class="preset-btn" data-preset="sample2">
                                 <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80" alt="Intersection">
-                                <small>Intersection</small>
+                                <small>02 // CROSSING</small>
                             </button>
-                            <button class="preset-btn" dataset-preset="sample3">
+                            <button class="preset-btn" data-preset="sample3">
                                 <img src="https://images.unsplash.com/photo-1494522855154-9297ac14b55f?auto=format&fit=crop&w=400&q=80" alt="Evening">
-                                <small>Evening</small>
+                                <small>03 // NIGHTWAY</small>
                             </button>
                         </div>
                     </div>
 
-                    <button id="analyzeBtn" class="analyze-btn" style="width: 100%; margin-top: 25px;" disabled>
-                        <span>⚡ Execute AI Detection</span>
+                    <button id="analyzeBtn" class="analyze-btn" style="width: 100%; margin-top: 16px;" disabled>
+                        <span>⚡ EXECUTE DETECTION // 解析開始</span>
                     </button>
                 </div>
 
 
                 <!-- Right Column: Results Stats Grid -->
                 <div class="results-card">
-                    <h3 style="font-size: 20px; margin-bottom: 20px;">Detection Metrics Breakdown</h3>
+                    <h3 style="font-size: 15px; margin-bottom: 14px;">DETECTION BREAKDOWN // 検出情報</h3>
 
-                    <div class="grid-4" style="grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
+                    <div class="grid-4" style="grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;">
                         <div class="stat-box">
                             <div class="stat-box-icon">🚗</div>
                             <div>
-                                <label>Cars Detected</label>
+                                <label>CARS // 車両</label>
                                 <strong id="carCount">--</strong>
                             </div>
                         </div>
 
                         <div class="stat-box">
-                            <div class="stat-box-icon">🏍️</div>
+                            <div class="stat-box-icon" style="background: #11283d; color: var(--anime-cyan);">🏍️</div>
                             <div>
-                                <label>Bikes / Cycles</label>
+                                <label>BIKES // 二輪</label>
                                 <strong id="bikeCount">--</strong>
                             </div>
                         </div>
 
                         <div class="stat-box">
-                            <div class="stat-box-icon">🧍</div>
+                            <div class="stat-box-icon" style="background: #332b12; color: var(--anime-yellow);">🧍</div>
                             <div>
-                                <label>Pedestrians</label>
+                                <label>PEDESTRIANS // 歩行者</label>
                                 <strong id="personCount">--</strong>
                             </div>
                         </div>
@@ -133,7 +138,7 @@
                         <div class="stat-box highlight">
                             <div class="stat-box-icon">Σ</div>
                             <div>
-                                <label>Total Objects</label>
+                                <label>TOTAL // 総計</label>
                                 <strong id="totalCount">--</strong>
                             </div>
                         </div>
@@ -142,17 +147,17 @@
                     <!-- Congestion Index Meter -->
                     <div class="traffic-level-card">
                         <div class="traffic-meter-header">
-                            <span>Traffic Congestion Level</span>
-                            <h4 id="trafficLevel">--</h4>
+                            <span>CONGESTION INDEX // 混雑指数</span>
+                            <h4 id="trafficLevel">STANDBY</h4>
                         </div>
                         <div class="meter-track">
                             <div class="meter-fill" id="trafficProgress"></div>
                         </div>
                     </div>
 
-                    <div style="margin-top: 25px; background: rgba(255, 255, 255, 0.02); padding: 15px; border-radius: 10px; border: 1px solid var(--border);">
-                        <p style="font-size: 13px; color: var(--muted);">
-                            💡 <strong>Tip:</strong> Each analysis consumes 1 daily credit. Results automatically save to your <a href="history.html" style="color: var(--accent);">History Archive</a>.
+                    <div style="margin-top: 14px; background: #000; padding: 10px 14px; border: 1.5px solid #282f45; border-left: 3px solid var(--anime-cyan);">
+                        <p style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                            ⚡ <strong>GRID PROTOCOL:</strong> Consumes 1 daily credit. Telemetry records automatically save to <a href="history.html" style="color: var(--anime-yellow); font-weight: 700; text-decoration: underline;">LOG ARCHIVE</a>.
                         </p>
                     </div>
                 </div>
@@ -165,12 +170,13 @@
 
     <!-- Footer -->
     <footer>
+        <div class="hazard-strip" style="margin-bottom: 30px;"></div>
         <div class="footer-content">
             <div class="footer-brand">
-                Traffic<span>AI</span> Vision
+                Traffic<span>AI</span> // 交通視覚知能システム
             </div>
             <div class="footer-text">
-                TrafficAI © 2026 • AI-Powered Visual Traffic Intelligence
+                NEO-BRUTALIST VISION ENGINE • TRAFFIC-AI © 2026 • ALL RIGHTS RESERVED
             </div>
         </div>
     </footer>
