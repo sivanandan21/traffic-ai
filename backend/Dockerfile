@@ -34,8 +34,9 @@ COPY requirements.txt .
 # Install application dependencies.
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
-# Copy pre-downloaded YOLO weights if present in build context
+# Copy pre-downloaded YOLO weights if present, or download during build to bake into image
 COPY yolo11n.pt* ./
+RUN python -c "from ultralytics import YOLO; YOLO('yolo11n.pt')"
 
 # Copy backend application.
 COPY main.py .
