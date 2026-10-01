@@ -93,7 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // BACKEND URL
     // ==========================================
 
-    const API_URL = "/api";
+    const API_URL = (window.location.port === "5500" || window.location.protocol === "file:")
+        ? "http://localhost:8000/api"
+        : "/api";
+
 
 
     // ==========================================

@@ -15,7 +15,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libglib2.0-0 \
         libgl1 \
-        libgomp1 && \
+        libgomp1 \
+        curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip.
@@ -31,13 +32,10 @@ RUN python -m pip install --no-cache-dir \
 COPY requirements.txt .
 
 # Install application dependencies.
-RUN python -m pip install --no-cache-dir \
-    fastapi \
-    uvicorn \
-    python-multipart \
-    boto3 \
-    ultralytics \
-    opencv-python-headless
+RUN python -m pip install --no-cache-dir -r requirements.txt
+
+# Copy pre-downloaded YOLO weights if present in build context
+COPY yolo11n.pt* ./
 
 # Copy backend application.
 COPY main.py .
@@ -47,6 +45,10 @@ RUN mkdir -p /app/uploads /app/.ultralytics
 
 # FastAPI port inside the container.
 EXPOSE 8000
+
+# Built-in container health check
+HEALTHCHECK --interval=15s --timeout=5s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"
 
 # Start FastAPI.
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

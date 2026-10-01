@@ -1,5 +1,6 @@
-﻿fastapi
+fastapi
 uvicorn[standard]
 python-multipart
 ultralytics
 boto3
+opencv-python-headless

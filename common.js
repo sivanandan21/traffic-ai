@@ -83,12 +83,12 @@ function showToast(message, type = "info") {
 
 // Active Nav Highlighter
 function highlightActiveNav() {
-    const currentPath = window.location.pathname.split("/").pop() || "index.html";
+    const currentPath = (window.location.pathname.split("/").pop() || "index.html").replace(/\.html$/, "");
     const navLinks = document.querySelectorAll("nav a");
 
     navLinks.forEach(link => {
-        const href = link.getAttribute("href");
-        if (href === currentPath || (currentPath === "" && href === "index.html")) {
+        const href = (link.getAttribute("href") || "").replace(/\.html$/, "");
+        if (href === currentPath || (currentPath === "" && href === "index")) {
             link.classList.add("active");
         } else {
             link.classList.remove("active");

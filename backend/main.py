@@ -34,14 +34,27 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://localhost:80",
+        "http://127.0.0.1:80",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
+        "*",
     ],
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
+
+import time
+import uuid
+
+# Clean up empty AWS environment variables so boto3 can discover IAM role properly
+for env_key in ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"):
+    if env_key in os.environ and not os.environ[env_key].strip():
+        del os.environ[env_key]
 
 # ============================================================
 # DIRECTORIES
@@ -61,30 +74,40 @@ UPLOAD_DIR.mkdir(
 # AWS S3 CONFIGURATION
 # ============================================================
 
-S3_BUCKET = "traffic-ai-buck"
+S3_BUCKET = os.getenv("AWS_S3_BUCKET", "traffic-ai-buck")
 
-S3_REGION = "ap-south-1"
+S3_REGION = os.getenv("AWS_DEFAULT_REGION", os.getenv("AWS_REGION", "ap-south-1"))
 
-S3_PREFIX = "uploads"
+S3_PREFIX = os.getenv("AWS_S3_PREFIX", "uploads")
 
 
-# boto3 automatically uses the EC2 IAM role attached to the
-# instance. No AWS access key or secret key is stored here.
+# boto3 automatically discovers credentials from:
+# 1. Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+# 2. EC2 instance IAM role metadata when running on AWS EC2
+# No credentials are hard-coded in source code or Docker images.
 
-s3 = boto3.client(
-    "s3",
-    region_name=S3_REGION,
-)
+try:
+    s3 = boto3.client(
+        "s3",
+        region_name=S3_REGION,
+    )
+except Exception as exc:
+    print(f"Boto3 client initialization warning: {exc}")
+    s3 = None
 
 
 # ============================================================
 # YOLO MODEL
 # ============================================================
 
-print("Loading YOLO model...")
+MODEL_PATH = BASE_DIR / "yolo11n.pt"
+if not MODEL_PATH.exists():
+    MODEL_PATH = Path("yolo11n.pt")
+
+print(f"Loading YOLO model from {MODEL_PATH}...")
 
 model = YOLO(
-    "yolo11n.pt"
+    str(MODEL_PATH)
 )
 
 print("YOLO model loaded successfully!")
@@ -115,7 +138,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024
 
 def safe_filename(filename: str) -> str:
     """
-    Convert a user-provided filename into a safer local/S3 filename.
+    Convert a user-provided filename into a safer local/S3 filename with unique prefix.
     """
 
     filename = Path(
@@ -129,9 +152,13 @@ def safe_filename(filename: str) -> str:
     )
 
     if not filename:
-        filename = "image"
+        filename = "image.jpg"
 
-    return filename
+    unique_id = uuid.uuid4().hex[:8]
+    timestamp = int(time.time())
+
+    return f"{timestamp}_{unique_id}_{filename}"
+
 
 
 # ============================================================
@@ -247,39 +274,35 @@ async def analyze(
 
 
         # ====================================================
-        # UPLOAD IMAGE TO S3
+        # UPLOAD IMAGE TO S3 (Optional cloud archive)
         # ====================================================
 
         s3_key = (
             f"{S3_PREFIX}/{filename}"
         )
+        s3_uploaded = False
 
+        if s3 and S3_BUCKET:
+            try:
+                s3.upload_file(
+                    str(file_path),
+                    S3_BUCKET,
+                    s3_key,
+                    ExtraArgs={
+                        "ContentType":
+                            file.content_type,
+                    },
+                )
+                s3_uploaded = True
+            except (
+                ClientError,
+                BotoCoreError,
+                Exception,
+            ) as exc:
+                print(
+                    f"S3 upload warning (proceeding with detection): {exc}"
+                )
 
-        try:
-
-            s3.upload_file(
-                str(file_path),
-                S3_BUCKET,
-                s3_key,
-                ExtraArgs={
-                    "ContentType":
-                        file.content_type,
-                },
-            )
-
-        except (
-            ClientError,
-            BotoCoreError,
-        ) as exc:
-
-            print(
-                f"S3 upload failed: {exc}"
-            )
-
-            raise HTTPException(
-                status_code=502,
-                detail="Could not upload image to S3.",
-            )
 
 
         # ====================================================
@@ -465,10 +488,13 @@ async def analyze(
                 filename,
 
             "s3_bucket":
-                S3_BUCKET,
+                S3_BUCKET if s3_uploaded else None,
 
             "s3_key":
-                s3_key,
+                s3_key if s3_uploaded else None,
+
+            "s3_uploaded":
+                s3_uploaded,
 
             "cars":
                 cars,

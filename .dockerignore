@@ -1,0 +1,25 @@
+# Version Control
+.git/
+.gitignore
+
+# Environment & Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Backend source & artifacts (isolated to backend build context)
+backend/
+uploads/
+*.pt
+
+# Python caches and virtual environments
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Documentation and metadata
+*.md
+LICENSE
