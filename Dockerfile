@@ -52,3 +52,4 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=15s --retries=3 \
 
 # Start unified FastAPI server serving both Web Frontend and AI Backend
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Trigger unified build
