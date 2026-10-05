@@ -6,6 +6,8 @@ import shutil
 import boto3
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from botocore.exceptions import BotoCoreError, ClientError
 from ultralytics import YOLO
 
@@ -61,6 +63,10 @@ for env_key in ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN
 # ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent
+
+FRONTEND_DIR = BASE_DIR / "frontend"
+if not FRONTEND_DIR.exists() or not (FRONTEND_DIR / "index.html").exists():
+    FRONTEND_DIR = BASE_DIR.parent
 
 UPLOAD_DIR = BASE_DIR / "uploads"
 
@@ -162,11 +168,13 @@ def safe_filename(filename: str) -> str:
 
 
 # ============================================================
-# HOME
+# HOME / FRONTEND
 # ============================================================
 
 @app.get("/")
 def home():
+    if FRONTEND_DIR.exists() and (FRONTEND_DIR / "index.html").exists():
+        return FileResponse(FRONTEND_DIR / "index.html")
     return {
         "message": "Traffic AI backend is running"
     }
@@ -532,3 +540,25 @@ async def analyze(
             print(
                 f"Temporary file cleanup failed: {exc}"
             )
+
+
+# ============================================================
+# FRONTEND STATIC FILES & CLEAN URLS
+# ============================================================
+
+if FRONTEND_DIR.exists() and (FRONTEND_DIR / "index.html").exists():
+
+    @app.get("/analysis", include_in_schema=False)
+    async def serve_analysis():
+        return FileResponse(FRONTEND_DIR / "analysis.html")
+
+    @app.get("/history", include_in_schema=False)
+    async def serve_history():
+        return FileResponse(FRONTEND_DIR / "history.html")
+
+    @app.get("/about", include_in_schema=False)
+    async def serve_about():
+        return FileResponse(FRONTEND_DIR / "about.html")
+
+    # Mount static assets and frontend directory
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

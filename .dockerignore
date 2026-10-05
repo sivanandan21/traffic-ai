@@ -1,6 +1,7 @@
 # Version Control
 .git/
 .gitignore
+.github/
 
 # Environment & Secrets
 .env
@@ -8,18 +9,21 @@
 *.pem
 *.key
 
-# Backend source & artifacts (isolated to backend build context)
-backend/
-uploads/
-*.pt
-
-# Python caches and virtual environments
+# Python virtual environments and caches
 venv/
 .venv/
-__pycache__/
+backend/venv/
+backend/.venv/
+**/__pycache__/
 *.pyc
 *.pyo
+.ultralytics/
 
-# Documentation and metadata
+# Uploads directory contents (keep folder structure)
+uploads/*
+!uploads/.gitkeep
+backend/uploads/*
+
+# Documentation and Project meta
 *.md
 LICENSE

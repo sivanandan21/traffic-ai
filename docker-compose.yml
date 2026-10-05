@@ -1,16 +1,16 @@
 services:
   # ============================================================
-  # FASTAPI + YOLO BACKEND SERVICE
+  # UNIFIED TRAFFIC AI SERVICE (FRONTEND + FASTAPI + YOLO)
   # ============================================================
-  backend:
+  traffic-ai:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    image: sivapn/traffic-ai-backend:latest
-    container_name: traffic-ai-backend
+    image: sivapn/traffic-ai:latest
+    container_name: traffic-ai
     restart: unless-stopped
-    expose:
-      - "8000"
+    ports:
+      - "${PORT:-80}:8000"
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
@@ -20,40 +20,7 @@ services:
       - PYTHONUNBUFFERED=1
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
-    networks:
-      - traffic-network
-
-  # ============================================================
-  # NGINX FRONTEND & REVERSE PROXY SERVICE
-  # ============================================================
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    image: sivapn/traffic-ai-frontend:latest
-    container_name: traffic-ai-frontend
-    restart: unless-stopped
-    ports:
-      - "${PORT:-80}:80"
-    depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/ || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
-      start_period: 5s
-    networks:
-      - traffic-network
-
-# ============================================================
-# NETWORKS
-# ============================================================
-networks:
-  traffic-network:
-    driver: bridge
+      start_period: 15s

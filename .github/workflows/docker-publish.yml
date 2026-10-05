@@ -1,4 +1,4 @@
-name: Build and Push Docker Images to Docker Hub
+name: Build and Push Docker Image to Docker Hub
 
 on:
   push:
@@ -6,8 +6,7 @@ on:
       - main
     paths:
       - 'backend/**'
-      - 'Dockerfile.frontend'
-      - 'nginx.conf'
+      - 'Dockerfile'
       - '*.html'
       - '*.css'
       - '*.js'
@@ -18,7 +17,7 @@ on:
 
 jobs:
   build-and-push:
-    name: Build & Push Images
+    name: Build & Push Unified Image
     runs-on: ubuntu-latest
 
     steps:
@@ -37,22 +36,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME || 'sivapn' }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Backend Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: true
-          tags: |
-            sivapn/traffic-ai-backend:latest
-            sivapn/traffic-ai-backend:${{ github.sha }}
-
-      - name: Build and Push Frontend Image
+      - name: Build and Push Unified Traffic AI Image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.frontend
+          file: ./Dockerfile
           push: true
           tags: |
-            sivapn/traffic-ai-frontend:latest
-            sivapn/traffic-ai-frontend:${{ github.sha }}
+            sivapn/traffic-ai:latest
+            sivapn/traffic-ai:${{ github.sha }}
